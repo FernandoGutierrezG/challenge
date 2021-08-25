@@ -49,7 +49,6 @@ checkfile()
   if test -f "$FILENAME"; then
     rm "$FILENAME"
 fi
-
 }
 
 main()
