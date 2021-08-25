@@ -1,0 +1,91 @@
+
+name: create devops users
+
+on:
+  # Triggers the workflow on push event but only for the main branch
+  push:
+    branches: [ main ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  getUsers:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - name: Run script to get the user
+        run: bash ./main.sh
+
+      - name: Show vars.tf
+        run: cat ./vars.tf
+
+      - name: Update repo
+        run: |
+          git config --global user.name '${USERNAME}'
+          git config --global user.email '${MAIL}'
+          git add .
+          git commit -m "update vars.tf"
+          git push -u origin HEAD
+
+  terraform-plan:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the code
+      # Marketplace: https://github.com/marketplace/actions/checkout
+      - name: "Setup - Checkout"
+        uses: actions/checkout@v2.1.0
+
+      # Static analysis of Terraform templates to spot potential security issues
+      # Marketplace: https://github.com/marketplace/actions/terraform-security-scan
+      # - name: "Setup - Security Scan"
+      #   uses: triat/terraform-security-scan@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Provides AWS credentials to Terraform
+      # By default, Terraform checks the home directory for a .aws folder with a credential file
+      # Documentation: https://docs.aws.amazon.com/ses/latest/DeveloperGuide/create-shared-credentials-file.html
+      - name: "Setup - Build AWS Credentials"
+        run: |
+          mkdir -p ~/.aws
+          echo "[default]" > ~/.aws/credentials
+          echo "aws_access_key_id = ${{ secrets.AWS_ACCESS_KEY_ID }}" >> ~/.aws/credentials
+          echo "aws_secret_access_key = ${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> ~/.aws/credentials
+          echo "hola" >> ~/.aws/credentials
+          cat ~/.aws/credentials
+
+
+      # Downloads a specific version of Terraform CLI and adds it to PATH
+      # Marketplace: https://github.com/marketplace/actions/hashicorp-setup-terraform
+      - name: "Setup - Terraform CLI"
+        uses: hashicorp/setup-terraform@v1
+
+      # Init pulls credentials from the .aws/credentials file by default
+      - name: "Run - Terraform Init"
+        run: terraform init -input=false
+
+      # The id value is used for reference in the comment step via "steps.plan.outputs.stdout"
+      # Note: Color is disabled to prevent messy characters from appearing in the pull request comment
+      - name: "Run - Terraform Plan"
+        id: plan
+        run: terraform plan -input=false -no-color
+
+        # Auto-approve prevents the requirement of human interaction
+      - name: "Run - Terraform Apply"
+        run: terraform apply -input=false -auto-approve
+
+      # - name: Update repo
+      #   run: |
+      #     git config --global user.name '${USERNAME}'
+      #     git config --global user.email '${MAIL}'
+      #     git add .
+      #     git commit -m "update repo"
+      #     git push -u origin HEAD
