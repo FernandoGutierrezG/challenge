@@ -20,13 +20,14 @@ getUsers()
     printf "%s\n" >> $FILENAME
     printf "$LINE3" >> $FILENAME
     n=1
+    echo "DevOps Users"
     cat $DIR | while read line; do
     if [[ $line == *$STR1* ]]; then
         IFS=','
         read -a strarr <<< "$line"
         IFS='@'
         read -a strarr2 <<< "${strarr[2]}"
-        echo "user : ${strarr2[0]}"
+        echo "user($n) : ${strarr2[0]}"
         if [ $n -eq 1 ]
         then
           printf "$QUOTES${strarr2[0]}$QUOTES" >> $FILENAME
@@ -46,7 +47,7 @@ getUsers()
 checkfile()
 {
   if test -f "$FILENAME"; then
-    echo "$FILE exists."
+    rm "$FILENAME"
 fi
 
 }
