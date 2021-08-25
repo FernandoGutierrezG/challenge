@@ -43,8 +43,17 @@ getUsers()
 
 }
 
+checkfile()
+{
+  if test -f "$FILENAME"; then
+    echo "$FILE exists."
+fi
 
-main(){
+}
+
+main()
+{
+  checkfile
   getUsers
 }
 
