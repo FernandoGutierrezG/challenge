@@ -27,7 +27,7 @@ getUsers()
         read -a strarr <<< "$line"
         IFS='@'
         read -a strarr2 <<< "${strarr[2]}"
-        echo "user($n) : ${strarr2[0]}"
+        echo "user: ${strarr2[0]}"
         if [ $n -eq 1 ]
         then
           printf "$QUOTES${strarr2[0]}$QUOTES" >> $FILENAME
