@@ -2,7 +2,7 @@
 
 DIR=./mails_file.csv
 STR1="DevOps"
-FILENAME="./terraform/vars.tf"
+FILENAME="./vars.tf"
 LINE1='variable "name"{'
 LINE2='type = list(string)'
 LINE3='default = ['
