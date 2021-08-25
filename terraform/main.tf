@@ -12,14 +12,9 @@ resource "aws_iam_user" "main" {
 }
 
 resource "aws_iam_group_membership" "main" {
-    name = "devops"
+  name = "devops"
 
-    for_each = aws_iam_user.main
-    users = each.value.name
-
+  for_each = aws_iam_user.main
+  users    = [each.value.name]
+  group    = aws_iam_group.devops.name
 }
-
-
-#resource "aws_iam_access_key" "main" {
-#  user = aws_iam_user.main.name
-#}
